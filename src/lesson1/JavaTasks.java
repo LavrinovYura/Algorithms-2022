@@ -101,20 +101,17 @@ public class JavaTasks {
      * 99.5
      * 121.3
      */
-    // T = O(N) Количество строк в файле
-    // R = O(N) 1 цикл While перебирающий N строк, countingSort с O(N), 1 цикл for O(N) => O(N)
+    // R = O(N) Количество строк в файле
+    // T = O(N) 1 цикл While перебирающий N строк, countingSort с O(N), 1 цикл for O(N) => O(N)
     static public void sortTemperatures(String inputName, String outputName) throws IOException {
         List<Integer> result = new ArrayList<>();
-
         try (BufferedReader br = new BufferedReader(new FileReader(inputName))) {
             String line;
             while ((line = br.readLine()) != null) {
                 result.add((int) ((Double.parseDouble(line) * 10 + 3000)));
             }
         }
-
         int[] ar = Sorts.countingSort((result.stream().mapToInt(t -> t).toArray()), 8000);
-
         try (FileWriter writer = new FileWriter(outputName)) {
             for (int value : ar) {
                 writer.write(((value - 3000.0) / 10.0) + "\n");

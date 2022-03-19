@@ -4,6 +4,8 @@ import kotlin.NotImplementedError;
 import kotlin.Pair;
 
 import java.util.Arrays;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 @SuppressWarnings("unused")
 public class JavaAlgorithms {
@@ -100,29 +102,29 @@ public class JavaAlgorithms {
      * вернуть ту из них, которая встречается раньше в строке first.
      */
     //T = O(N^2)
-    //R = O(N^2)
+    //R = O(N+4)
     static public String longestCommonSubstring(String first, String second) {
+
         int maxi = 0;
         int maxlen = 0;
         if (first.contains(second)) return second;
         if (second.contains(first)) return first;
-        int[][] words = new int[first.length()][second.length()];
-        for (int i = 0; i < words.length; i++) {
-            for (int j = 0; j < words[i].length; j++) {
+        int[][] words = new int[2][second.length()];
+        for (int i = 0; i < first.length(); i++) {
+            for (int j = 0; j < second.length(); j++) {
                 if (first.charAt(i) == second.charAt(j)) {
-                    if (i == 0 || j == 0) {
-                        words[i][j] = 1;
-                    } else {
-                        words[i][j] = words[i - 1][j - 1] + 1;
-                        if (maxlen < words[i][j]) {
-                            maxi = i;
-                            maxlen = words[i][j];
-                        }
+                    if (i > 0 && j > 0)
+                        words[1][j] = words[0][j - 1] + 1;
+                    else words[1][j] = 1;
+                    if (maxlen < words[1][j]) {
+                        maxi = i;
+                        maxlen = words[1][j];
                     }
-                }
+                } else words[1][j] = 0;
             }
+            words[0] = words[1].clone();
         }
-        return first.substring(maxi-maxlen+1, maxi+1);
+        return first.substring(maxi - maxlen + 1, maxi + 1);
     }
 
     /**
@@ -135,10 +137,10 @@ public class JavaAlgorithms {
      * Справка: простым считается число, которое делится нацело только на 1 и на себя.
      * Единица простым числом не считается.
      */
-    //T=O(N)
-    //R=O(N*loglogN) Решето Эратосфена
+    //R=O(N)
+    //T=O(N*loglogN) Решето Эратосфена
     static public int calcPrimesNumber(int limit) {
-        if (limit <= 1 ) return 0;
+        if (limit <= 1) return 0;
         boolean[] primes = new boolean[limit + 1];
         Arrays.fill(primes, true);
         primes[0] = false;
