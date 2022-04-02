@@ -35,13 +35,19 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
 
     private Node<T> find(Node<T> start, T value) {
         int comparison = value.compareTo(start.value);
+        Node<T> parent = null;
         if (comparison == 0) {
+            parent = start;
             return start;
         } else if (comparison < 0) {
             if (start.left == null) return start;
-            return find(start.left, value);
+            {
+                parent = start;
+                return find(start.left, value);
+            }
         } else {
             if (start.right == null) return start;
+            parent = start;
             return find(start.right, value);
         }
     }
@@ -120,27 +126,21 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
                 return false;
         }
 
+        nodeChangeIf(currentNode, parentNode, leftChild);
+        size--;
+        return true;
+    }
+
+    public void nodeChangeIf(Node<T> currentNode, Node<T> parentNode, boolean leftChild) {
         if (currentNode.left == null && currentNode.right == null) {
-            if (currentNode == root) {
-                root = null;
-            } else if (leftChild) {
-                parentNode.left = null;
-            } else parentNode.right = null;
 
+            nodeChange(currentNode, parentNode, null, leftChild);
         } else if (currentNode.left == null) {
-            if (currentNode == root) {
-                root = currentNode.right;
-            } else if (leftChild) {
-                parentNode.left = currentNode.right;
-            } else parentNode.right = currentNode.right;
 
+            nodeChange(currentNode, parentNode, currentNode.right, leftChild);
         } else if (currentNode.right == null) {
-            if (currentNode == root) {
-                root = currentNode.left;
-            } else if (leftChild) {
-                parentNode.left = currentNode.left;
-            } else parentNode.right = currentNode.left;
 
+            nodeChange(currentNode, parentNode, currentNode.left, leftChild);
         } else if (currentNode.right.left == null) {
             if (currentNode == root) {
                 root.right.left = root.left;
@@ -166,18 +166,19 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
                 tmpNode.right = currentNode.right;
                 tmpNode.left = currentNode.left;
             }
-            if (currentNode == root) {
-                root = tmpNode;
-            } else if (leftChild) {
-                parentNode.left = tmpNode;
-            } else {
-                parentNode.right = tmpNode;
-            }
+            nodeChange(currentNode, parentNode, tmpNode, leftChild);
         }
-        size--;
-        return true;
     }
 
+    public void nodeChange(Node<T> currentNode, Node<T> parentNode, Node<T> toChange, boolean leftChild) {
+        if (currentNode == root) {
+            root = toChange;
+        } else if (leftChild) {
+            parentNode.left = toChange;
+        } else {
+            parentNode.right = toChange;
+        }
+    }
 
     @Nullable
     @Override
@@ -287,52 +288,8 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
     @NotNull
     @Override
     public SortedSet<T> subSet(T fromElement, T toElement) {
-
-        SortedSet<T> set = new TreeSet<>() {
-            final BinarySearchTree<T> bTree = BinarySearchTree.this;
-
-            @Override
-            public boolean add(T t) {
-                if (fromElement.compareTo(t) > 0 || toElement.compareTo(t) <= 0) throw new IllegalArgumentException();
-                bTree.add(t);
-                return super.add(t);
-            }
-
-            @Override
-            public boolean remove(Object o) {
-                if (fromElement.compareTo((T) o) > 0 || toElement.compareTo((T) o) <= 0)
-                    throw new IllegalArgumentException();
-                bTree.remove(o);
-                return super.remove(o);
-            }
-
-            @Override
-            public T first() {
-                return super.first();
-            }
-
-            @Override
-            public T last() {
-               return super.last();
-            }
-
-        };
-        if (root == null)
-            return set;
-        if (fromElement.compareTo(toElement) == 0) return set;
-        ArrayDeque<Node<T>> queue = new ArrayDeque<>();
-        queue.push(root);
-        while (!queue.isEmpty()) {
-            Node<T> node = queue.pop();
-            if (node.left != null)
-                queue.offer(node.left);
-            if (node.right != null)
-                queue.offer(node.right);
-
-            if (node.value.compareTo(fromElement) >= 0 && node.value.compareTo(toElement) < 0)
-            set.add(node.value);
-        }
-        return set;
+        // TODO()
+        throw new NotImplementedError();
     }
 
     /**
