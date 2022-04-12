@@ -1,7 +1,7 @@
 package lesson4;
 
 import java.util.*;
-import kotlin.NotImplementedError;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -89,11 +89,57 @@ public class Trie extends AbstractSet<String> implements Set<String> {
      *
      * Сложная
      */
+
     @NotNull
     @Override
     public Iterator<String> iterator() {
-        // TODO
-        throw new NotImplementedError();
+        return new TrieIterator();
+    }
+
+    public class TrieIterator implements Iterator<String> {
+        ArrayDeque<String> deque = new ArrayDeque<>();
+        String current;
+
+        TrieIterator() {
+            dequeInit(root, "");
+        }
+
+        void dequeInit(Node node, String word) {
+            node.children.forEach((key, value) -> {
+                if (key.equals((char) 0)) {
+                    deque.push(word);
+                } else {
+                    dequeInit(value, word + key);
+                }
+            });
+        }
+
+        //T = O(1)
+        //R = O(1)
+        @Override
+        public boolean hasNext() {
+            return !deque.isEmpty();
+        }
+
+        //T = O(N)
+        //R = O(N)
+        @Override
+        public String next() {
+            if (hasNext()) {
+                return current = deque.pop();
+            } else throw new NoSuchElementException();
+        }
+
+        //T = O(N)
+        //R = O(N)
+        @Override
+        public void remove() {
+            if (current!= null) {
+                Trie.this.remove(current);
+                current=null;
+            }
+            else throw new IllegalStateException();
+        }
     }
 
 }
