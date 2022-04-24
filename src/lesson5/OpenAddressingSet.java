@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.AbstractSet;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 public class OpenAddressingSet<T> extends AbstractSet<T> {
@@ -109,7 +110,7 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
             current = storage[index];
             if (start == index || current == null) return false;
         }
-        storage[index] = false;
+        storage[index] = deleted;
         size--;
         return true;
     }
@@ -157,8 +158,8 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
                     last = storage[index];
                     index++;
                 }
-            }
-            alreadyContains++;
+                alreadyContains++;
+            } else throw new NoSuchElementException();
             return (T) last;
         }
 
@@ -171,6 +172,7 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
             if (last == null) throw new IllegalStateException();
             storage[index - 1] = deleted;
             size--;
+            last = null;
         }
     }
 }
