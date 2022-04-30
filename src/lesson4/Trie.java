@@ -98,13 +98,13 @@ public class Trie extends AbstractSet<String> implements Set<String> {
 
     public class TrieIterator implements Iterator<String> {
         ArrayDeque<String> deque = new ArrayDeque<>();
-        Stack<Pair<Node, String>> waitDeque = new Stack<>();
+        Stack<Pair<Node, String>> waitStack = new Stack<>();
         String current;
 
         TrieIterator() {
-            root.children.forEach((c, n) -> waitDeque.push(new Pair(n, c.toString())));
-            if (!waitDeque.isEmpty()) {
-                Pair<Node, String> head = waitDeque.pop();
+            root.children.forEach((c, n) -> waitStack.push(new Pair(n, c.toString())));
+            if (!waitStack.isEmpty()) {
+                Pair<Node, String> head = waitStack.pop();
                 dequeInit(head.getFirst(), head.getSecond());
             }
         }
@@ -119,16 +119,15 @@ public class Trie extends AbstractSet<String> implements Set<String> {
                     Node n = entry.getValue();
                     if (c.equals((char) 0)) {
                         deque.push(last);
-                        k = false;
                     } else {
-                        waitDeque.push(new Pair<>(n, last + c));
+                        waitStack.push(new Pair<>(n, last + c));
                     }
                 }
-                if (k) {
-                    Pair<Node, String> head = waitDeque.pop();
+                if (!waitStack.isEmpty()) {
+                    Pair<Node, String> head = waitStack.pop();
                     curNode = head.getFirst();
                     last = head.getSecond();
-                }
+                } else k = false;
             }
         }
 
@@ -136,7 +135,7 @@ public class Trie extends AbstractSet<String> implements Set<String> {
         //R = O(1)
         @Override
         public boolean hasNext() {
-            return !(deque.isEmpty()||waitDeque.isEmpty());
+            return !deque.isEmpty();
         }
 
         //T = O(N)
@@ -145,8 +144,10 @@ public class Trie extends AbstractSet<String> implements Set<String> {
         public String next() {
             if (hasNext()) {
                 current = deque.pop();
-                Pair<Node, String> head = waitDeque.pop();
-                dequeInit(head.getFirst(), head.getSecond());
+                if (!waitStack.isEmpty()) {
+                    Pair<Node, String> head = waitStack.pop();
+                    dequeInit(head.getFirst(), head.getSecond());
+                }
                 return current;
             } else throw new NoSuchElementException();
         }
@@ -161,5 +162,6 @@ public class Trie extends AbstractSet<String> implements Set<String> {
             } else throw new IllegalStateException();
         }
     }
+
 
 }
