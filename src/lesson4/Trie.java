@@ -84,9 +84,9 @@ public class Trie extends AbstractSet<String> implements Set<String> {
 
     /**
      * Итератор для префиксного дерева
-     *
+     * <p>
      * Спецификация: {@link Iterator} (Ctrl+Click по Iterator)
-     *
+     * <p>
      * Сложная
      */
 
@@ -98,27 +98,45 @@ public class Trie extends AbstractSet<String> implements Set<String> {
 
     public class TrieIterator implements Iterator<String> {
         ArrayDeque<String> deque = new ArrayDeque<>();
+        Stack<Pair<Node, String>> waitDeque = new Stack<>();
         String current;
 
         TrieIterator() {
-            dequeInit(root, "");
+            root.children.forEach((c, n) -> waitDeque.push(new Pair(n, c.toString())));
+            if (!waitDeque.isEmpty()) {
+                Pair<Node, String> head = waitDeque.pop();
+                dequeInit(head.getFirst(), head.getSecond());
+            }
         }
 
         void dequeInit(Node node, String word) {
-            node.children.forEach((key, value) -> {
-                if (key.equals((char) 0)) {
-                    deque.push(word);
-                } else {
-                    dequeInit(value, word + key);
+            boolean k = true;
+            Node curNode = node;
+            String last = word;
+            while (k) {
+                for (Map.Entry<Character, Node> entry : curNode.children.entrySet()) {
+                    Character c = entry.getKey();
+                    Node n = entry.getValue();
+                    if (c.equals((char) 0)) {
+                        deque.push(last);
+                        k = false;
+                    } else {
+                        waitDeque.push(new Pair<>(n, last + c));
+                    }
                 }
-            });
+                if (k) {
+                    Pair<Node, String> head = waitDeque.pop();
+                    curNode = head.getFirst();
+                    last = head.getSecond();
+                }
+            }
         }
 
         //T = O(1)
         //R = O(1)
         @Override
         public boolean hasNext() {
-            return !deque.isEmpty();
+            return !(deque.isEmpty()||waitDeque.isEmpty());
         }
 
         //T = O(N)
@@ -126,7 +144,10 @@ public class Trie extends AbstractSet<String> implements Set<String> {
         @Override
         public String next() {
             if (hasNext()) {
-                return current = deque.pop();
+                current = deque.pop();
+                Pair<Node, String> head = waitDeque.pop();
+                dequeInit(head.getFirst(), head.getSecond());
+                return current;
             } else throw new NoSuchElementException();
         }
 
@@ -134,11 +155,10 @@ public class Trie extends AbstractSet<String> implements Set<String> {
         //R = O(N)
         @Override
         public void remove() {
-            if (current!= null) {
+            if (current != null) {
                 Trie.this.remove(current);
-                current=null;
-            }
-            else throw new IllegalStateException();
+                current = null;
+            } else throw new IllegalStateException();
         }
     }
 
