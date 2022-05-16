@@ -119,15 +119,16 @@ public class Trie extends AbstractSet<String> implements Set<String> {
                     Node n = entry.getValue();
                     if (c.equals((char) 0)) {
                         deque.push(last);
+                        k = false;
                     } else {
                         waitStack.push(new Pair<>(n, last + c));
                     }
                 }
-                if (!waitStack.isEmpty()) {
+                if (k && !waitStack.isEmpty()) {
                     Pair<Node, String> head = waitStack.pop();
                     curNode = head.getFirst();
                     last = head.getSecond();
-                } else k = false;
+                } else k= false;
             }
         }
 
@@ -135,7 +136,7 @@ public class Trie extends AbstractSet<String> implements Set<String> {
         //R = O(1)
         @Override
         public boolean hasNext() {
-            return !deque.isEmpty();
+            return !(deque.isEmpty() && waitStack.isEmpty());
         }
 
         //T = O(N)
